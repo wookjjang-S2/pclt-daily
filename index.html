@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>PCLT 일일 퇴근보고</title>
+<style>
+:root{
+  --bg:#f1f5f9; --card:#fff; --ink:#1e293b; --mute:#64748b; --line:#e2e8f0;
+  --blue:#1d4ed8; --bluebg:#eff6ff; --red:#be123c; --redbg:#fff1f2;
+  --green:#047857; --greenbg:#ecfdf5; --amber:#b45309; --amberbg:#fffbeb;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0f172a; --card:#1e293b; --ink:#e2e8f0; --mute:#94a3b8; --line:#334155;
+    --blue:#93c5fd; --bluebg:#1e3a5f; --red:#fda4af; --redbg:#4c1d2b;
+    --green:#6ee7b7; --greenbg:#12372d; --amber:#fcd34d; --amberbg:#3f3414; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;padding-bottom:64px}
+header{background:linear-gradient(90deg,#1e3a8a,#312e81 60%,#0f172a);color:#fff;position:sticky;top:0;z-index:5}
+.wrap{max-width:640px;margin:0 auto;padding:0 14px}
+header .wrap{display:flex;align-items:center;justify-content:space-between;padding-top:10px;padding-bottom:10px}
+header h1{font-size:15px;margin:0}
+header p{margin:0;font-size:11px;color:#cbd5e1}
+.logo{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#f97316;font-weight:700;margin-right:10px;font-size:12px}
+.hrow{display:flex;align-items:center}
+main{max-width:640px;margin:0 auto;padding:12px 14px;display:grid;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.card h2{font-size:13px;margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.card h2 small{font-weight:400;color:var(--mute);font-size:11px}
+.notice{border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.6}
+.ok{background:var(--greenbg);color:var(--green);border:1px solid var(--green)}
+.warn{background:var(--amberbg);color:var(--amber);border:1px solid var(--amber)}
+.bad{background:var(--redbg);color:var(--red);border:1px solid var(--red)}
+.notice b{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (max-width:480px){.grid3{grid-template-columns:1fr 1fr}}
+label.f{display:block;font-size:11px;font-weight:600;color:var(--mute);margin-bottom:4px}
+.box{border:1px solid var(--line);border-radius:10px;padding:8px}
+.box.blue{background:var(--bluebg)} .box.red{background:var(--redbg)}
+input[type=text],input[type=number],input[type=date],textarea{
+  width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font:inherit;font-weight:700;
+  background:var(--card);color:var(--ink)}
+input[readonly]{background:transparent;border-style:dashed}
+textarea{font-weight:400;resize:vertical}
+input:focus,textarea:focus{outline:2px solid var(--blue);outline-offset:0}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.pair input{text-align:center;padding:9px 2px}
+.slot{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:8px}
+.slot-h{display:flex;justify-content:space-between;align-items:center;background:var(--bg);padding:7px 10px;font-size:12px;font-weight:700}
+.tm{background:#1e3a8a;color:#fff;border-radius:5px;padding:1px 6px;font-size:10px;margin-right:6px}
+.item{display:flex;gap:10px;align-items:flex-start;padding:11px 10px;border-top:1px solid var(--line);cursor:pointer;font-size:13px}
+.item input{width:20px;height:20px;margin:0;flex:none;accent-color:#1d4ed8}
+.key{color:var(--red);font-size:10px;font-weight:700;margin-left:4px}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 12px}
+button.sm{padding:3px 9px;font-size:12px;border-radius:7px}
+button.primary{width:100%;background:#fde047;color:#422006;border:0;font-weight:800;font-size:15px;padding:15px}
+button.danger{color:var(--red)}
+.row{display:flex;gap:8px}.row>*{flex:1}
+#preview{white-space:pre-wrap;font-size:12px;background:var(--bg);border-radius:8px;padding:10px;max-height:340px;overflow:auto}
+#copyModal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;z-index:20;padding:16px;align-items:center;justify-content:center}
+#copyModal.show{display:flex}
+#copyModal .card{width:100%;max-width:560px}
+#copyModal textarea{height:260px;font-size:12px}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:10px;font-size:12px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30;max-width:90vw;text-align:center}
+#toast.show{opacity:1}
+.hide{display:none!important}
+@media print{header button,.noprint{display:none!important} body{background:#fff}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="hrow"><span class="logo">H</span><div><h1>PCLT 일일 퇴근보고 작성기</h1><p>표준 업무 루틴 &amp; 실적 트래킹</p></div></div>
+</div></header>
+
+<main>
+  <div id="storageBad" class="notice bad hide"><b>⚠ 이 브라우저에서는 저장이 안 됩니다</b>카톡 안에서 열었거나 비공개(시크릿) 모드일 수 있습니다. 크롬/사파리에서 이 링크를 열어 주세요.</div>
+  <div id="kakaoTip" class="notice warn hide"><b>카카오톡 안에서 열어 둔 상태입니다</b>카톡 내장 브라우저는 저장 내용이 지워질 수 있습니다. 우측 상단 메뉴(⋮) → <b style="display:inline">'다른 브라우저로 열기'</b> 후, 크롬/사파리에서 홈 화면에 추가해 쓰시면 가장 안정적입니다.</div>
+  <div id="saveInfo" class="notice ok"><b>💾 입력한 내용은 이 폰에만 자동 저장됩니다</b>다른 팀원 화면과 공유되지 않고, 서버로 전송되지 않습니다. 다시 열면 이름·목표·실적이 그대로 남고, 업무 체크와 특이사항은 날짜가 바뀌면 비워집니다.</div>
+  <div id="staleWarn" class="notice warn hide"><b>⚠ 실적이 오늘 기준이 아닙니다</b><span id="staleText"></span></div>
+
+  <section class="card">
+    <div class="grid2">
+      <div><label class="f" for="reportDate">보고 일자</label><input type="date" id="reportDate"></div>
+      <div><label class="f" for="reporterName">보고자 성함</label><input type="text" id="reporterName" placeholder="예: 홍길동" autocomplete="name"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>당월 실적 트래킹 (수량) <small>단위: 본 · <span id="monthLabel"></span></small></h2>
+    <div class="grid3">
+      <div class="box"><label class="f" for="kpiTarget">당월 목표</label><input type="number" id="kpiTarget" inputmode="numeric" min="0" placeholder="목표"></div>
+      <div class="box blue"><label class="f" for="kpiCurrent">금일 누적 실적</label><input type="number" id="kpiCurrent" inputmode="numeric" min="0" placeholder="실적"></div>
+      <div class="box"><label class="f" for="kpiRate">달성율 (자동)</label><input type="text" id="kpiRate" readonly></div>
+      <div class="box red"><label class="f" for="kpiShortage">부족분 수량 (자동)</label><input type="text" id="kpiShortage" readonly></div>
+      <div class="box"><label class="f" for="kpiExpected">예상 실적</label><input type="number" id="kpiExpected" inputmode="numeric" min="0" placeholder="예상"></div>
+      <div class="box"><label class="f">예상 잔량 / 미협의</label>
+        <div class="pair"><input type="text" id="kpiRemains" readonly title="예상 실적 - 누적 실적"><input type="number" id="kpiPending" inputmode="numeric" min="0" placeholder="미협의" title="미협의 수량"></div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>표준 업무 루틴 체크리스트 (15개)
+      <span><button class="sm" id="checkAllBtn">전체 완료</button> <button class="sm" id="uncheckAllBtn">체크 비우기</button></span></h2>
+    <div id="routine"></div>
+  </section>
+
+  <section class="card">
+    <h2>이슈 및 특이사항 (비고)</h2>
+    <textarea id="reportNotes" rows="3" placeholder="특이사항 입력 (없으면 비워두셔도 됩니다)"></textarea>
+  </section>
+
+  <section class="notice ok noprint">
+    <b>퇴근보고 보내는 순서</b>
+    ① 오늘 실적 숫자 수정 → ② 아래 노란 <b style="display:inline">[카카오톡 보고문 복사]</b> 터치 → ③ 카톡으로 돌아가 팀장님 톡방에 붙여넣기 후 전송
+  </section>
+
+  <div class="noprint" style="display:grid;gap:8px">
+    <button class="primary" id="copyBtn">📋 카카오톡 보고문 복사</button>
+    <div class="row">
+      <button id="previewBtn">문구 미리보기</button>
+      <button id="printBtn">인쇄 / PDF</button>
+    </div>
+    <div class="row">
+      <button id="newDayBtn">오늘 새로 시작 (체크·비고 비우기)</button>
+      <button id="resetAllBtn" class="danger">전체 지우기</button>
+    </div>
+  </div>
+
+  <section id="previewCard" class="card hide"><h2>복사될 카톡 문구 <small>자동 생성</small></h2><div id="preview"></div></section>
+</main>
+
+<div id="copyModal"><div class="card">
+  <h2>직접 복사하기</h2>
+  <p style="margin:0 0 8px;font-size:12px;color:var(--mute)">자동 복사가 막혀 있습니다. 아래 글을 길게 눌러 '전체 선택 → 복사' 하세요.</p>
+  <textarea id="copyArea" readonly></textarea>
+  <div class="row" style="margin-top:10px"><button id="selectAllBtn">전체 선택</button><button id="closeModalBtn">닫기</button></div>
+</div></div>
+<div id="toast"></div>
+
+<script>
+(function(){
+  var KEY='pclt_daily_state_v2';
+  var SLOTS=[
+    {t:'08:30~09:30',n:'주문출고 & 매입 점검 (Sell-in)',m:'Sell-in',items:[
+      ['미출 리스트 & 당일 출고 점검'],['전일 주문 점검 & 당일 주문계획',1],['전일 부족분 만회 대책 수립'],['팀 내부 업무 및 對본사 업무 확인']]},
+    {t:'09:30~17:00',n:'현장 방문 & 실판매 강화 (Sell-out)',m:'Sell-out',items:[
+      ['티스테이션 올마이티 (all my T) 점검'],['대리점별 셀아웃 프로모션 점검'],['대리점별 셀인 실적 점검',1],['패턴별 실적 및 부족수량 점검',1],
+      ['프리미엄 & iON(전기차) 믹스 개선'],['매장 VMD 및 판촉물 관리'],['권역 내 경쟁사 동향 모니터링'],['대리점 컴플레인 & A/S 신속 처리']]},
+    {t:'17:00~18:30',n:'당일 마감 & 익일 준비',m:'마감/준비',items:[
+      ['금일 최종 주문/출고 실적 집계'],['익일 배송 스케줄 확인'],['익일 타깃 대리점 및 액션 플랜 랩업',1]]}
+  ];
+  var $=function(id){return document.getElementById(id)};
+  var el={date:$('reportDate'),name:$('reporterName'),target:$('kpiTarget'),cur:$('kpiCurrent'),rate:$('kpiRate'),
+    short:$('kpiShortage'),exp:$('kpiExpected'),rem:$('kpiRemains'),pend:$('kpiPending'),notes:$('reportNotes')};
+  var storageOk=true, checks=[];
+
+  function pad(n){return String(n).padStart(2,'0')}
+  function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+  var today=ymd(new Date()), month=today.slice(0,7);
+  var meta={checksDate:today, numbersDate:'', month:month};
+
+  // ---- build checklist
+  var box=$('routine'), no=0, boxes=[];
+  SLOTS.forEach(function(s,si){
+    var d=document.createElement('div'); d.className='slot';
+    d.innerHTML='<div class="slot-h"><span><span class="tm">'+s.t+'</span>'+s.n+'</span><span data-slot="'+si+'"></span></div>';
+    s.items.forEach(function(it){
+      no++; var lb=document.createElement('label'); lb.className='item';
+      var cb=document.createElement('input'); cb.type='checkbox'; cb.dataset.slot=si; cb.dataset.title=it[0];
+      var sp=document.createElement('span'); sp.textContent=no+'. '+it[0];
+      if(it[1]){var k=document.createElement('span'); k.className='key'; k.textContent='[핵심]'; sp.appendChild(k);}
+      lb.appendChild(cb); lb.appendChild(sp); d.appendChild(lb); boxes.push(cb);
+      cb.addEventListener('change',function(){onChange()});
+    });
+    box.appendChild(d);
+  });
+
+  // ---- storage
+  function load(){
+    try{
+      var raw=localStorage.getItem(KEY); if(!raw) return;
+      var s=JSON.parse(raw);
+      el.name.value=s.name||''; el.pend.value=s.pending||''; el.cur.value=s.current||''; el.exp.value=s.expected||'';
+      el.target.value=s.target||'';
+      meta.numbersDate=s.numbersDate||''; meta.month=s.month||month;
+      if(s.month && s.month!==month){ el.target.value=''; el.cur.value=''; el.exp.value=''; el.pend.value=''; meta.numbersDate=''; meta.month=month; }
+      if(s.checksDate===today){
+        el.notes.value=s.notes||'';
+        (s.checks||[]).forEach(function(v,i){ if(boxes[i]) boxes[i].checked=!!v; });
+        meta.checksDate=today;
+      } else { meta.checksDate=today; }
+    }catch(e){}
+  }
+  function save(){
+    if(!storageOk) return;
+    try{
+      localStorage.setItem(KEY,JSON.stringify({
+        name:el.name.value.trim(),target:el.target.value,current:el.cur.value,expected:el.exp.value,pending:el.pend.value,
+        notes:el.notes.value,checks:boxes.map(function(b){return b.checked}),
+        checksDate:meta.checksDate,numbersDate:meta.numbersDate,month:meta.month}));
+    }catch(e){ storageOk=false; $('storageBad').classList.remove('hide'); }
+  }
+  try{ localStorage.setItem('__t','1'); localStorage.removeItem('__t'); }catch(e){ storageOk=false; }
+  if(!storageOk) $('storageBad').classList.remove('hide');
+  try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+  if(/KAKAOTALK/i.test(navigator.userAgent)) $('kakaoTip').classList.remove('hide');
+
+  // ---- calc
+  function num(v){var n=parseFloat(v); return isFinite(n)&&n>0?n:0}
+  function fmt(n){return Number(n).toLocaleString('ko-KR')}
+  function calc(){
+    var t=num(el.target.value), c=num(el.cur.value), e=num(el.exp.value);
+    el.rate.value=t>0?(c/t*100).toFixed(1)+'%':'-';
+    el.short.value=t>0?fmt(Math.max(0,Math.round(t-c))):'-';
+    el.rem.value=e>0?fmt(Math.max(0,Math.round(e-c))):'-';
+    SLOTS.forEach(function(s,si){
+      var total=0,on=0; boxes.forEach(function(b){ if(+b.dataset.slot===si){total++; if(b.checked) on++;} });
+      document.querySelector('[data-slot="'+si+'"]').textContent=on+'/'+total;
+    });
+    var stale=!meta.numbersDate || meta.numbersDate!==today;
+    var any=el.cur.value!==''||el.target.value!=='';
+    $('staleWarn').classList.toggle('hide',!(stale&&any));
+    $('staleText').textContent=meta.numbersDate
+      ? ' 실적 마지막 수정일: '+meta.numbersDate.slice(5).replace('-','/')+'. 오늘 숫자로 고쳤는지 확인하세요.'
+      : ' 오늘 실적을 입력하세요.';
+    $('monthLabel').textContent=month.slice(5)+'월';
+    el.date.value=el.date.value||today;
+  }
+  function message(){
+    var cnt=boxes.filter(function(b){return b.checked}).length, notes=el.notes.value.trim();
+    var m='[PCLT 일일 퇴근보고]\n■ 일자: '+(el.date.value||today)+'\n■ 보고자: '+(el.name.value.trim()||'(본인 성함)')+'\n\n';
+    m+='📊 [당월 실적 트래킹]\n• 당월목표: '+fmt(num(el.target.value))+'본\n• 당월실적: '+fmt(num(el.cur.value))+'본 (달성율: '+el.rate.value+')\n';
+    m+='• 부족분수량: '+el.short.value+'본\n• 예상실적: '+fmt(num(el.exp.value))+'본 (잔량: '+el.rem.value+'본)\n• 미협의수량: '+fmt(num(el.pend.value))+'본\n\n';
+    m+='✅ [업무 루틴 체크리스트 ('+cnt+'/15 완료)]\n';
+    var i=0; SLOTS.forEach(function(s){
+      m+=(i?'\n':'')+'['+s.t+' '+s.m+']\n';
+      s.items.forEach(function(it){ m+=(boxes[i].checked?'☑ ':'☐ ')+it[0]+'\n'; i++; });
+    });
+    m+='\n📝 [이슈 및 특이사항]\n- '+(notes||'특이사항 없음')+'\n\n이상 금일 업무 보고를 마칩니다. 감사합니다.';
+    return m;
+  }
+  function refresh(){ calc(); $('preview').textContent=message(); }
+  function onChange(){ refresh(); save(); }
+
+  [el.target,el.cur,el.exp].forEach(function(i){ i.addEventListener('input',function(){
+    if(i.value!=='' && parseFloat(i.value)<0) i.value='';
+    meta.numbersDate=today; onChange(); }); });
+  [el.pend,el.name,el.notes,el.date].forEach(function(i){ i.addEventListener('input',onChange); });
+
+  var tt; function toast(t){var e=$('toast'); e.textContent=t; e.classList.add('show'); clearTimeout(tt); tt=setTimeout(function(){e.classList.remove('show')},2600)}
+
+  $('checkAllBtn').onclick=function(){boxes.forEach(function(b){b.checked=true}); onChange(); toast('15개 항목 전체 체크했습니다.')};
+  $('uncheckAllBtn').onclick=function(){boxes.forEach(function(b){b.checked=false}); onChange(); toast('체크를 비웠습니다.')};
+  $('newDayBtn').onclick=function(){
+    if(!confirm('업무 체크와 특이사항을 비웁니다.\n(이름·목표·실적 숫자는 그대로 둡니다)\n진행할까요?')) return;
+    boxes.forEach(function(b){b.checked=false}); el.notes.value=''; onChange(); toast('오늘 새로 시작합니다.');
+  };
+  $('resetAllBtn').onclick=function(){
+    if(!confirm('이름·목표·실적·체크·비고를 모두 지웁니다.\n되돌릴 수 없습니다. 진행할까요?')) return;
+    [el.name,el.target,el.cur,el.exp,el.pend,el.notes].forEach(function(i){i.value=''});
+    boxes.forEach(function(b){b.checked=false}); meta.numbersDate=''; onChange(); toast('전체 지웠습니다.');
+  };
+  $('previewBtn').onclick=function(){ var c=$('previewCard'); c.classList.toggle('hide'); if(!c.classList.contains('hide')) c.scrollIntoView({behavior:'smooth'}); };
+  $('printBtn').onclick=function(){ window.print(); };
+
+  function showModal(text){ $('copyArea').value=text; $('copyModal').classList.add('show'); $('copyArea').focus(); $('copyArea').select(); }
+  $('closeModalBtn').onclick=function(){ $('copyModal').classList.remove('show'); };
+  $('selectAllBtn').onclick=function(){ var a=$('copyArea'); a.focus(); a.select(); a.setSelectionRange(0,a.value.length); };
+
+  $('copyBtn').onclick=function(){
+    if(meta.numbersDate!==today && (el.cur.value!=='' ) &&
+       !confirm('실적을 오늘 기준으로 수정하지 않았습니다.\n그래도 복사할까요?')) return;
+    var text=message(), done=false;
+    function fallback(){
+      try{
+        var ta=document.createElement('textarea'); ta.value=text; ta.style.cssText='position:fixed;opacity:0;top:0';
+        document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0,text.length);
+        done=document.execCommand('copy'); document.body.removeChild(ta);
+      }catch(e){ done=false; }
+      if(done) toast('복사 완료! 카톡 팀장님 톡방에 붙여넣기 하세요.'); else showModal(text);
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ toast('복사 완료! 카톡 팀장님 톡방에 붙여넣기 하세요.'); },fallback);
+    } else fallback();
+  };
+
+  load(); refresh(); save();
+})();
+</script>
+</body>
+</html>
